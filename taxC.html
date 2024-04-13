@@ -1,0 +1,161 @@
+<html>
+<head>
+<title>Tax Calculator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+ background-color: #C0C0C0;
+  }
+
+
+  #cont {
+display: inline-block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: lightblue;
+            padding: 20px;
+	    border-radius: 35px;
+  }
+
+  td {
+    padding: 8px;
+    text-align: center;
+  }
+  
+  th {
+    font-size: 25px;
+  }
+
+  select#age  {
+
+    outline: none;
+    scroll-behavior: smooth;
+  }
+
+  input {
+    padding: 5px;
+    text-align: right;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+  }
+
+  .error-icon {
+    display: none;
+    color: red;
+    cursor: help;
+  }
+
+  button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+
+</style>
+</head>
+<body>
+<div id="cont">
+<table>
+  <tr>
+    <th colspan="2" >Tax Calculator</th>
+  </tr>
+  <tr>
+    <td>Age:</td>
+    <td>
+      <select id="age" text-align+ "left">
+        <option value="<40">&lt;40</option>
+        <option value="≥40 &lt;60">&ge;40 &lt;60</option>
+        <option value="≥60">&ge;60</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td>Gross Annual Income:</td>
+    <td><input type="text" id="income" oninput="this.value = numberWithCommas(this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));"><span id="incomeError" class="error-icon" title="Please enter a valid income">⚠</span></td>
+  </tr>
+  <tr>
+    <td>Extra Income:</td>
+    <td><input type="text" id="extraIncome" oninput="this.value = numberWithCommas(this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));"><span id="extraIncomeError" class="error-icon" title="Please enter a valid extra income">⚠</span></td>
+  </tr>
+  <tr>
+    <td>Deductions:</td>
+    <td><input type="text" id="deductions" oninput="this.value = numberWithCommas(this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));"><span id="deductionsError" class="error-icon" title="Please enter a valid deduction amount">⚠</span></td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align: center;">
+      <button onclick="calculateTax()">Calculate Tax</button>
+    </td>
+  </tr>
+</table>
+</div>
+
+<div id="result"></div>
+
+<script>
+  function calculateTax() {
+    resetErrors();
+
+    const age = document.getElementById("age").value;
+    const income = parseFloat(document.getElementById("income").value.replace(/,/g, ''));
+    const extraIncome = parseFloat(document.getElementById("extraIncome").value.replace(/,/g, ''));
+    const deductions = parseFloat(document.getElementById("deductions").value.replace(/,/g, ''));
+
+    // Check for missing input or non-numeric input
+    if (!age || isNaN(income) || isNaN(extraIncome) || isNaN(deductions)) {
+      if (!age) document.getElementById("ageError").style.display = "inline";
+      if (isNaN(income)) document.getElementById("incomeError").style.display = "inline";
+      if (isNaN(extraIncome)) document.getElementById("extraIncomeError").style.display = "inline";
+      if (isNaN(deductions)) document.getElementById("deductionsError").style.display = "inline";
+      return;
+    }
+
+    // Calculate taxable income after deductions
+    const taxableIncome = income + extraIncome - deductions;
+
+    // Check if taxable income is below 8 Lakhs
+    if (taxableIncome <= 800000) {
+      document.getElementById("result").innerText = "No tax applicable.";
+      return;
+    }
+
+    // Calculate tax based on age and taxable income
+    let taxRate = 0;
+    if (age === "<40") {
+      taxRate = 0.3;
+    } else if (age === "≥40 &lt;60") {
+      taxRate = 0.4;
+    } else {
+      taxRate = 0.1;
+    }
+
+    const tax = taxRate * (taxableIncome - 800000);
+
+    // Display result in a pop-up box
+    alert("Tax: " + tax.toFixed(2) + " Rupees \n Income after tax deduction "+(taxableIncome - tax.toFixed(2))+" Rupees");
+  }
+
+  function resetErrors() {
+    const errorIcons = document.querySelectorAll(".error-icon");
+    errorIcons.forEach(icon => {
+      icon.style.display = "none";
+    });
+  }
+
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+</script>
+
+</body>
+</html>
